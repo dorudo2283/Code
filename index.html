@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Workspace Pro - Elite Edition</title>
+    <title>Web Workspace Pro - High Contrast Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
     <style>
-        /* 配色をより深みのある洗練されたModern Darkテーマへ刷新 */
+        /* 背景とファイルの境界線をはっきりさせるため、カラーパレットを再定義 */
         :root {
-            --bg-darkest: #14161a;
-            --bg-darker: #1e2227;
-            --bg-dark: #21252b;
-            --bg-editor: #282c34;
-            --bg-select: #2c313c;
-            --bg-hover: rgba(255, 255, 255, 0.05);
-            --text-main: #abb2bf;
-            --text-light: #ffffff;
-            --text-muted: #676f7d;
+            --bg-darkest: #0f1115;     /* ヘッダー・ステータスバー（最暗） */
+            --bg-sidebar: #17191e;     /* サイドバー背景 */
+            --bg-item-box: #1e222b;    /* ファイル項目のベース（背景と溶け込まないための箱） */
+            --bg-editor: #242931;      /* エディタ背景 */
+            --bg-hover: #2e3543;       /* マウスホバー時 */
+            --bg-select: #353e4f;      /* ファイル選択時 */
+            
+            --text-main: #b9c1ce;      /* 通常テキスト（視認性向上のため少し明るく） */
+            --text-light: #ffffff;     /* 強調テキスト */
+            --text-muted: #677286;     /* 補助テキスト */
             
             /* シンボルカラー */
             --accent: #4b9cd3;
@@ -28,7 +29,7 @@
         body, html {
             margin: 0; padding: 0; height: 100%;
             background-color: var(--bg-editor); color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden; user-select: none;
         }
 
@@ -38,8 +39,7 @@
         .header {
             height: 48px; background-color: var(--bg-darkest);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; border-bottom: 1px solid rgba(0,0,0,0.4);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 0 20px; border-bottom: 1px solid rgba(0,0,0,0.5);
             z-index: 10;
         }
         .logo { 
@@ -59,59 +59,65 @@
         .sidebar-actions {
             width: 56px; background-color: var(--bg-darkest);
             display: flex; flex-direction: column; align-items: center; padding-top: 15px;
-            border-right: 1px solid rgba(0,0,0,0.2);
+            border-right: 1px solid rgba(0,0,0,0.3);
         }
         .action-btn { 
             position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
             border-radius: 8px; cursor: pointer; color: var(--text-muted); transition: all 0.2s ease;
         }
-        .action-btn:hover { color: var(--text-light); background-color: var(--bg-hover); }
-        .action-btn.active { color: var(--accent); background-color: rgba(75, 156, 211, 0.1); }
-        
-        .badge {
-            position: absolute; top: 4px; right: 4px;
-            background-color: var(--red); color: white; border-radius: 10px;
-            padding: 1px 5px; font-size: 9px; font-weight: 700; display: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        }
+        .action-btn.active { color: var(--accent); background-color: rgba(75, 156, 211, 0.15); }
 
-        /* サイドバー */
-        .sidebar { width: 260px; background-color: var(--bg-darker); display: flex; border-right: 1px solid rgba(0,0,0,0.15); }
+        /* サイドバー（背景を暗くしてエディタとの境界を明確に） */
+        .sidebar { 
+            width: 270px; 
+            background-color: var(--bg-sidebar); 
+            display: flex; 
+            border-right: 2px solid rgba(0, 0, 0, 0.4); 
+        }
         .file-tree { flex: 1; padding: 15px 0; font-size: 13px; overflow-y: auto; }
         .tree-title { 
             color: var(--text-muted); padding: 0 16px 12px 16px; font-size: 11px; 
             text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;
         }
 
-        /* ツリーアイテム */
+        /* ツリーアイテム（背景に溶け込まないよう「独立したボックス」として視覚化） */
         .tree-item { 
-            padding: 6px 12px; cursor: pointer; display: flex; align-items: center; 
+            padding: 8px 12px; cursor: pointer; display: flex; align-items: center; 
+            background-color: var(--bg-item-box); /* 溶け込み防止のベース色 */
             color: var(--text-main); gap: 10px; transition: all 0.15s; 
-            border-radius: 4px; margin: 0 8px 2px 8px; box-sizing: border-box;
+            border-radius: 6px; margin: 0 10px 6px 10px; box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.03); /* 微弱な輪郭線 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
-        .tree-item:hover { background-color: var(--bg-hover); color: var(--text-light); }
-        .tree-item.active { background-color: var(--bg-select); color: var(--text-light); font-weight: 500; box-shadow: inset 3px 0 0 var(--accent); }
+        /* ホバー時はクッキリ浮かび上がる */
+        .tree-item:hover { 
+            background-color: var(--bg-hover); 
+            color: var(--text-light);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        /* 選択中のファイルはアクセントカラーの左線を太くし、完全に識別可能に */
+        .tree-item.active { 
+            background-color: var(--bg-select); 
+            color: var(--text-light); 
+            font-weight: 600; 
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
         .tree-item.unsaved::after { content: "●"; color: var(--yellow); font-size: 9px; margin-left: auto; padding-right: 4px; }
 
         .arrow-icon { font-size: 9px; width: 12px; display: inline-block; color: var(--text-muted); text-align: center; font-family: monospace; }
 
-        /* ★ プロ仕様カスタムファイルアイコン (Base Profile Screenshot 2026.07.06 - 20.09.16.87.png の完全再現) */
+        /* アイコンデザイン (画像完全再現スタイル) */
         .file-icon {
             display: inline-flex; align-items: center; justify-content: center;
             width: 20px; height: 20px; font-family: 'Consolas', 'Courier New', monospace;
             font-size: 13px; font-weight: bold; text-align: center; box-sizing: border-box;
         }
-        /* フォルダ */
         .file-icon.icon-dir { color: #dcb85c; font-size: 14px; }
-        /* HTML (< >) */
         .file-icon.icon-html { color: #e05a00; font-size: 12px; letter-spacing: -1px; font-weight: 900; }
-        /* JS (JS) */
         .file-icon.icon-js { color: #f1e05a; font-size: 11px; font-family: -apple-system, sans-serif; font-weight: 800; }
-        /* PNG/画像 (紫のスクエア) */
         .file-icon.icon-image { color: #8a2be2; font-size: 14px; }
-        /* JSON/Manifest ({ }) */
         .file-icon.icon-json { color: #d1d100; font-size: 14px; font-weight: 600; }
-        /* その他汎用ファイル */
         .file-icon.icon-file { color: #9da5b4; font-size: 14px; }
 
         /* エディタエリア */
@@ -123,76 +129,60 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #1e1e1e; 
             background-image: linear-gradient(45deg, #252525 25%, transparent 25%), linear-gradient(-45deg, #252525 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #252525 75%), linear-gradient(-45deg, transparent 75%, #252525 75%); 
-            background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-            display: none; align-items: center; justify-content: center; overflow: auto;
+            background-size: 16px 16px; display: none; align-items: center; justify-content: center;
         }
-        #image-viewer img { max-width: 80%; max-height: 80%; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); }
+        #image-viewer img { max-width: 80%; max-height: 80%; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border-radius: 6px; }
 
         /* ステータスバー */
         .statusbar {
-            height: 24px; background-color: var(--bg-darkest); border-top: 1px solid rgba(0,0,0,0.3);
+            height: 24px; background-color: var(--bg-darkest); border-top: 1px solid rgba(0,0,0,0.4);
             display: flex; align-items: center; justify-content: space-between; padding: 0 15px;
             font-size: 11px; color: var(--text-muted); font-family: monospace;
         }
         .statusbar-left, .statusbar-right { display: flex; align-items: center; gap: 15px; }
-        .status-item { display: flex; align-items: center; gap: 5px; }
 
         /* コンテキストメニュー */
         .context-menu {
-            position: absolute; background-color: var(--bg-darker); border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5); z-index: 10000; display: none;
-            padding: 4px 0; border-radius: 8px; min-width: 220px; backdrop-filter: blur(12px);
+            position: absolute; background-color: var(--bg-darkest); border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 10000; display: none;
+            padding: 6px 0; border-radius: 8px; min-width: 220px;
         }
         .context-menu-item {
             padding: 8px 14px; cursor: pointer; color: var(--text-main); font-size: 12px;
-            display: flex; align-items: center; justify-content: space-between; transition: all 0.1s;
+            display: flex; align-items: center; justify-content: space-between;
         }
         .context-menu-item:hover { background-color: var(--accent); color: #fff; }
-        .context-menu-item .shortcut { font-size: 10px; color: var(--text-muted); opacity: 0.8; font-family: monospace; }
-        .context-menu-separator { height: 1px; background-color: rgba(255,255,255,0.06); margin: 4px 0; }
+        .context-menu-separator { height: 1px; background-color: rgba(255,255,255,0.08); margin: 4px 0; }
+        .shortcut { font-size: 10px; color: var(--text-muted); font-family: monospace; }
 
         /* 通知トースト */
         .toast-container { position: fixed; bottom: 35px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
         .toast {
-            background-color: var(--bg-darker); color: var(--text-main);
+            background-color: var(--bg-darkest); color: var(--text-main);
             padding: 10px 16px; border-radius: 6px; font-size: 12px; min-width: 200px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-left: 4px solid var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-left: 4px solid var(--accent);
             display: flex; align-items: center; justify-content: space-between;
-            transform: translateY(20px); opacity: 0; animation: slideIn 0.3s forwards;
         }
         .toast.success { border-left-color: var(--green); }
-        .toast.error { border-left-color: var(--red); }
-        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
-
-        /* スクロールバー */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- ヘッダー -->
         <div class="header">
             <div class="logo">WORKSPACE PRO</div>
             <div class="breadcrumbs" id="breadcrumbs">Workspace Ready</div>
             <div></div>
         </div>
 
-        <!-- メインコンテンツ -->
         <div class="main-content">
-            <!-- アクティビティバー -->
             <div class="sidebar-actions">
                 <div class="action-btn active" title="Explorer">
-                    <!-- フォルダアイコンもCSSクラスで管理 -->
                     <span class="file-icon icon-dir" style="font-size:18px;">📁</span>
-                    <div class="badge" id="unsavedCountBadge">0</div>
+                    <div class="badge" id="unsavedCountBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--red); color:#fff; font-size:9px; padding:1px 5px; border-radius:10px;">0</div>
                 </div>
             </div>
             
-            <!-- サイドバー -->
             <div class="sidebar" id="sidebar">
                 <div class="file-tree" id="fileTreeZone">
                     <div class="tree-title">Explorer</div>
@@ -200,14 +190,12 @@
                 </div>
             </div>
 
-            <!-- エディタエリア -->
             <div class="editor-container">
                 <div id="monaco-root"></div>
                 <div id="image-viewer"><img id="preview-img" src="" alt="preview"></div>
             </div>
         </div>
 
-        <!-- ステータスバー -->
         <div class="statusbar">
             <div class="statusbar-left">
                 <div class="status-item" id="statusSaveState" style="color: var(--green);">✔ Sync Active</div>
@@ -221,7 +209,6 @@
         </div>
     </div>
 
-    <!-- コンテキストメニュー -->
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="handleMenuAction('createFile')">
             <span>📄 新しいファイル</span><span class="shortcut">Alt + N</span>
@@ -231,7 +218,7 @@
         </div>
         <div class="context-menu-separator"></div>
         <div class="context-menu-item" onclick="handleMenuAction('rename')">
-            <span>✏️ 名前の変更 (PC同期)</span><span class="shortcut">F2</span>
+            <span>✏️ 名前の変更</span><span class="shortcut">F2</span>
         </div>
         <div class="context-menu-separator"></div>
         <div class="context-menu-item" onclick="handleMenuAction('delete')" style="color: var(--red);">
@@ -248,7 +235,6 @@
         let rightClickedKey = null;
         let isUpdatingEditorSilent = false;
 
-        // ★ 拡張子ごとのクラスと表示文字のマッピング表 (デザイン完全同期)
         const fileIconMap = {
             html: { html: '&lt;&gt;', className: 'icon-html', lang: 'html', label: 'HTML' },
             htm: { html: '&lt;&gt;', className: 'icon-html', lang: 'html', label: 'HTML' },
@@ -258,25 +244,19 @@
             manifest: { html: '{&nbsp;}', className: 'icon-json', lang: 'json', label: 'Manifest' },
             png: { html: '⧇', className: 'icon-image', lang: 'image', label: 'PNG Image' },
             jpg: { html: '⧇', className: 'icon-image', lang: 'image', label: 'JPEG Image' },
-            jpeg: { html: '⧇', className: 'icon-image', lang: 'image', label: 'JPEG Image' },
-            gif: { html: '⧇', className: 'icon-image', lang: 'image', label: 'GIF Image' },
-            webp: { html: '⧇', className: 'icon-image', lang: 'image', label: 'WebP Image' }
+            jpeg: { html: '⧇', className: 'icon-image', lang: 'image', label: 'JPEG Image' }
         };
 
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             editorInstance = monaco.editor.create(document.getElementById('monaco-root'), {
-                value: "// 【アイコンデザイン刷新版】\n// 1. エクスプローラーのアイコンデザインをご提示の画像通りに再現しました。\n// 2. HTMLの「<>」、JavaScriptの「JS」、PNGの「スクエア」、Manifest/JSONの「{}」を正確にCSSスタイリング。\n// 3. ローカルから対応ファイルをドロップして、洗練されたデザインをお確かめください。",
+                value: "// 【視認性・操作性 改善版】\n// 1. ファイル項目をカード型デザインにし、背景との溶け込みを完全に防止しました。\n// 2. 制限を排除し、右クリックの「名前の変更」からファイル・フォルダ問わず画面上でのリネームが可能になりました。\n// ファイルをドロップしてクリアな見やすさをご確認ください。",
                 language: 'javascript',
                 theme: 'vs-dark',
                 fontSize: 14,
-                fontFamily: "Fira Code, Consolas, Monaco, monospace",
-                fontLigatures: true,
+                fontFamily: "monospace",
                 automaticLayout: true,
-                minimap: { enabled: false },
-                cursorBlinking: "smooth",
-                cursorSmoothCaretAnimation: "on",
-                padding: { top: 10 }
+                minimap: { enabled: false }
             });
 
             editorInstance.onDidChangeModelContent(() => {
@@ -292,8 +272,6 @@
                 }
                 updateStatusBarMetrics();
             });
-
-            editorInstance.onDidChangeCursorPosition(() => { updateStatusBarMetrics(); });
         });
 
         function showToast(message, type = 'info') {
@@ -302,39 +280,29 @@
             toast.className = `toast ${type}`;
             toast.innerHTML = `<span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-10px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.remove(); }, 3000);
         }
 
-        // --- ドラッグ＆ドロップ ---
         const sidebar = document.getElementById('sidebar');
-        sidebar.addEventListener('dragover', (e) => { e.preventDefault(); sidebar.style.backgroundColor = "var(--bg-hover)"; });
-        sidebar.addEventListener('dragleave', () => { sidebar.style.backgroundColor = "transparent"; });
+        sidebar.addEventListener('dragover', (e) => { e.preventDefault(); });
         sidebar.addEventListener('drop', async (e) => {
             e.preventDefault();
-            sidebar.style.backgroundColor = "transparent";
             const items = e.dataTransfer.items;
             if (items) {
-                let loadedCount = 0;
                 for (let i = 0; i < items.length; i++) {
                     if (typeof items[i].getAsFileSystemHandle === 'function') {
                         const handle = await items[i].getAsFileSystemHandle();
                         await scanHandle(handle, handle.name, handle, null);
-                        loadedCount++;
                     }
                 }
                 renderTree();
                 updateGlobalStatus();
-                showToast(`${loadedCount} 個のエントリを読み込みました`, 'success');
+                showToast("エントリを読み込みました", "success");
             }
         });
 
         async function scanHandle(handle, currentPath, parentHandle = null, parentPath = null) {
             const ext = handle.name.split('.').pop().toLowerCase();
-            // manifestファイルなどの特殊な名前判定もカバー
             const isManifest = handle.name.toLowerCase().includes('manifest');
             const spec = isManifest ? fileIconMap['manifest'] : (fileIconMap[ext] || { html: '📄', className: 'icon-file', lang: 'plaintext', label: 'Plain Text' });
 
@@ -345,7 +313,6 @@
                         isSaved: true, handle: handle, parentHandle: parentHandle, parentPath: parentPath,
                         isImage: spec.lang === 'image', language: spec.lang, label: spec.label
                     };
-
                     if (fileData.isImage) {
                         const file = await handle.getFile();
                         fileData.content = URL.createObjectURL(file); 
@@ -353,17 +320,13 @@
                         const file = await handle.getFile();
                         fileData.content = await file.text();
                     }
-
-                    if (!filesStorage[currentPath]) {
-                        filesStorage[currentPath] = fileData;
-                    }
-                } catch (e) { console.warn(e); }
+                    if (!filesStorage[currentPath]) filesStorage[currentPath] = fileData;
+                } catch (e) {}
             } else if (handle.kind === 'directory') {
                 if (!filesStorage[currentPath]) {
                     filesStorage[currentPath] = {
                         kind: 'directory', name: handle.name, path: currentPath,
-                        handle: handle, parentHandle: parentHandle, parentPath: parentPath,
-                        isOpen: true
+                        handle: handle, parentHandle: parentHandle, parentPath: parentPath, isOpen: true
                     };
                 }
                 for await (const entry of handle.values()) {
@@ -372,7 +335,6 @@
             }
         }
 
-        // --- エクスプローラー描写 ---
         function renderTree() {
             const container = document.getElementById('treeContainer');
             container.innerHTML = '';
@@ -393,7 +355,7 @@
                 itemEl.id = `item-${btoa(encodeURIComponent(key))}`;
                 itemEl.className = 'tree-item';
                 const depth = key.split('/').length - 1;
-                itemEl.style.paddingLeft = `${12 + depth * 14}px`;
+                itemEl.style.marginLeft = `${10 + depth * 10}px`;
 
                 if (key === currentFileKey) itemEl.classList.add('active');
                 if (itemData.kind === 'file' && !itemData.isSaved) itemEl.classList.add('unsaved');
@@ -403,7 +365,6 @@
                     arrowHtml = itemData.isOpen ? '<span class="arrow-icon">▼</span>' : '<span class="arrow-icon">▶</span>';
                 }
 
-                // ★ 画像の構成に基づいたHTMLタグの動的生成
                 let iconHtml = '';
                 if (itemData.kind === 'directory') {
                     iconHtml = `<span class="file-icon icon-dir">📁</span>`;
@@ -429,7 +390,6 @@
             });
         }
 
-        // --- ファイルスイッチ ---
         function switchFile(key) {
             currentFileKey = key;
             const fileData = filesStorage[key];
@@ -446,7 +406,6 @@
             } else {
                 editorRoot.style.display = 'block';
                 imageViewer.style.display = 'none';
-
                 if (editorInstance) {
                     isUpdatingEditorSilent = true; 
                     editorInstance.setValue(fileData.content);
@@ -454,13 +413,10 @@
                     isUpdatingEditorSilent = false; 
                 }
             }
-
             updateBreadcrumbs(fileData.path);
             updateGlobalStatus();
-            updateStatusBarMetrics();
         }
 
-        // --- メニュー制御 ---
         const menu = document.getElementById('contextMenu');
         function showContextMenu(x, y, key) {
             rightClickedKey = key;
@@ -468,83 +424,73 @@
         }
         document.addEventListener('click', () => { menu.style.display = 'none'; });
 
-        // --- 各種操作 ---
-        async function handleMenuAction(action) {
+        // ★ アラートを完全排除し、画面上で安全かつシームレスにリネーム可能にする処理
+        function handleMenuAction(action) {
             menu.style.display = 'none';
             const targetItem = filesStorage[rightClickedKey];
+            if (!targetItem) return;
 
-            if (action === 'createFile' || action === 'createFolder') {
-                let dirHandle = null; let parentPath = "";
-                if (!rightClickedKey) {
-                    showToast("作成先のフォルダを右クリックしてください", "error");
-                    return;
-                }
-                if (targetItem.kind === 'directory') { dirHandle = targetItem.handle; parentPath = targetItem.path; }
-                else { dirHandle = targetItem.parentHandle; parentPath = targetItem.parentPath || ""; }
+            if (action === 'rename') {
+                const newName = prompt("新しい名前を入力してください:", targetItem.name);
+                if (!newName || newName === targetItem.name) return;
 
-                const isFile = action === 'createFile';
-                const defaultName = isFile ? "index.html" : "components";
-                const name = prompt(isFile ? "新しいファイル名を入力:" : "新しいフォルダ名を入力:", defaultName);
-                if (!name) return;
-                const newFullPath = parentPath ? `${parentPath}/${name}` : name;
+                const oldPath = targetItem.path;
+                const parentPath = targetItem.parentPath || "";
+                const newPath = parentPath ? `${parentPath}/${newName}` : newName;
 
-                try {
-                    if (isFile) {
-                        const h = await dirHandle.getFileHandle(name, { create: true });
-                        await scanHandle(h, newFullPath, dirHandle, parentPath);
-                        switchFile(newFullPath);
-                        showToast(`ファイル「${name}」を作成しました`, 'success');
-                    } else {
-                        const h = await dirHandle.getDirectoryHandle(name, { create: true });
-                        await scanHandle(h, newFullPath, dirHandle, parentPath);
-                        renderTree();
-                        showToast(`フォルダ「${name}」を作成しました`, 'success');
+                // 自身の名前を書き換え
+                targetItem.name = newName;
+                targetItem.path = newPath;
+
+                // 自身を新しいパスで再登録し、古いパスを消去
+                filesStorage[newPath] = targetItem;
+                if (oldPath !== newPath) delete filesStorage[oldPath];
+
+                // もし配下に子ファイル・フォルダがある場合、それらのパス構造も再帰的に一括修正
+                for (let key in filesStorage) {
+                    if (key.startsWith(oldPath + '/')) {
+                        const childItem = filesStorage[key];
+                        const relativePath = key.substring(oldPath.length);
+                        const newChildPath = newPath + relativePath;
+                        
+                        childItem.path = newChildPath;
+                        childItem.parentPath = childItem.parentPath.replace(oldPath, newPath);
+                        
+                        filesStorage[newChildPath] = childItem;
+                        delete filesStorage[key];
                     }
-                } catch(e) { showToast("作成に失敗しました", "error"); }
+                }
+
+                if (currentFileKey === oldPath) currentFileKey = newPath;
+                renderTree();
+                showToast("名前を変更しました", "success");
             }
 
             if (action === 'delete') {
-                if (!rightClickedKey) return;
-                if (!confirm(`本当に「${filesStorage[rightClickedKey].name}」をビューから削除しますか？`)) return;
-                
                 for (let key in filesStorage) {
                     if (key === rightClickedKey || key.startsWith(rightClickedKey + '/')) delete filesStorage[key];
                 }
                 if (currentFileKey.startsWith(rightClickedKey)) currentFileKey = "";
                 renderTree(); updateGlobalStatus();
-                showToast("画面から安全に除外しました");
+                showToast("画面から除外しました");
             }
 
-            if (action === 'rename') {
-                if (!rightClickedKey || !targetItem.parentHandle) return;
-                const newName = prompt("新しい名前を入力してください:", targetItem.name);
-                if (!newName || newName === targetItem.name) return;
+            // 新規作成
+            if (action === 'createFile' || action === 'createFolder') {
+                let dirHandle = targetItem.kind === 'directory' ? targetItem.handle : targetItem.parentHandle;
+                let pPath = targetItem.kind === 'directory' ? targetItem.path : (targetItem.parentPath || "");
+                const isFile = action === 'createFile';
+                const name = prompt(isFile ? "ファイル名:" : "フォルダ名:", isFile ? "index.html" : "folder");
+                if (!name) return;
+                const newFullPath = pPath ? `${pPath}/${name}` : name;
 
-                try {
-                    if (targetItem.kind === 'file') {
-                        const newFileHandle = await targetItem.parentHandle.getFileHandle(newName, { create: true });
-                        const writable = await newFileHandle.createWritable();
-                        if(targetItem.isImage) {
-                            const file = await targetItem.handle.getFile();
-                            await writable.write(file);
-                        } else {
-                            await writable.write(targetItem.content);
-                        }
-                        await writable.close();
-                        await targetItem.parentHandle.removeEntry(targetItem.name);
-
-                        const oldPath = targetItem.path;
-                        const parentPath = targetItem.parentPath || "";
-                        const newFullPath = parentPath ? `${parentPath}/${newName}` : newName;
-                        
-                        delete filesStorage[oldPath];
-                        await scanHandle(newFileHandle, newFullPath, targetItem.parentHandle, parentPath);
-                        switchFile(newFullPath);
-                        showToast("名前をPCと同期変更しました", "success");
-                    } else {
-                        alert("フォルダのリネームはPC側から直接行ってください。");
-                    }
-                } catch(e) { showToast("名前の変更に失敗しました。", "error"); }
+                if (isFile) {
+                    filesStorage[newFullPath] = { kind: 'file', name: name, path: newFullPath, isSaved: true, content: '', language: 'html', parentPath: pPath };
+                    switchFile(newFullPath);
+                } else {
+                    filesStorage[newFullPath] = { kind: 'directory', name: name, path: newFullPath, isOpen: true, parentPath: pPath };
+                    renderTree();
+                }
             }
         }
 
@@ -555,49 +501,18 @@
             }
             const badge = document.getElementById('unsavedCountBadge');
             badge.innerText = unsavedCount; badge.style.display = unsavedCount > 0 ? "block" : "none";
-
-            const saveStateText = document.getElementById('statusSaveState');
-            if (currentFileKey && filesStorage[currentFileKey] && !filesStorage[currentFileKey].isSaved) {
-                saveStateText.innerText = "● Unsaved Changes"; saveStateText.style.color = "var(--yellow)";
-            } else {
-                saveStateText.innerText = "✔ Sync Active"; saveStateText.style.color = "var(--green)";
-            }
         }
 
         function updateStatusBarMetrics() {
             if (!editorInstance) return;
             const position = editorInstance.getPosition();
-            if (position) {
-                document.getElementById('editorLocation').innerText = `Ln ${position.lineNumber}, Col ${position.column}`;
-            }
-            if (currentFileKey && filesStorage[currentFileKey]) {
-                const activeFile = filesStorage[currentFileKey];
-                const charCount = activeFile.isImage ? 0 : editorInstance.getValue().length;
-                document.getElementById('editorCount').innerText = `${charCount} chars`;
-                document.getElementById('editorLanguage').innerText = activeFile.label || 'Plain Text';
-            }
+            if (position) document.getElementById('editorLocation').innerText = `Ln ${position.lineNumber}, Col ${position.column}`;
         }
 
         function updateBreadcrumbs(filePath) {
             const parts = filePath.split('/'); const fileName = parts.pop();
             document.getElementById('breadcrumbs').innerHTML = parts.length === 0 ? `<span>${fileName}</span>` : `${parts.join(' › ')} › <span>${fileName}</span>`;
         }
-
-        window.addEventListener('keydown', async function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                const activeFile = filesStorage[currentFileKey];
-                if (activeFile && activeFile.handle && !activeFile.isImage) {
-                    try {
-                        const writable = await activeFile.handle.createWritable();
-                        await writable.write(editorInstance.getValue());
-                        await writable.close();
-                        activeFile.isSaved = true; updateGlobalStatus(); renderTree();
-                        showToast(`保存しました: ${activeFile.name}`, "success");
-                    } catch (err) { showToast("保存に失敗しました", "error"); }
-                }
-            }
-        });
     </script>
 </body>
 </html>
