@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Code Editor - Real File Sync</title>
+    <title>Web Code Editor - Robust Sync</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
     <style>
         body, html {
@@ -36,7 +36,6 @@
         }
         .file-tree { flex: 1; padding: 15px 10px; font-size: 13px; overflow-y: auto; }
         
-        /* フォルダを開くスタイリッシュなボタン */
         .open-btn {
             width: 100%; background-color: #4c6ef5; color: white;
             border: none; padding: 8px 12px; border-radius: 4px;
@@ -60,11 +59,11 @@
         <div class="header">
             <div class="logo">ロゴ</div>
             <div class="save-status" id="saveStatus">Saved</div>
-            <div class="breadcrumbs" id="breadcrumbs">ファイルを読み込んでください</div>
+            <div class="breadcrumbs" id="breadcrumbs">フォルダを開くか、ここにドラッグ＆ドロップしてください</div>
         </div>
 
         <div class="main-content">
-            <div class="sidebar">
+            <div class="sidebar" id="sidebar">
                 <div class="sidebar-actions">
                     <div class="action-btn">
                         <span style="font-size: 28px;">📄</span>
@@ -86,7 +85,6 @@
     </div>
 
     <script>
-        // 仮想ファイルシステム（本物のファイルへアクセスするための「ハンドル」も一緒に保管する）
         let filesStorage = {};
         let currentFileKey = "";
         let editorInstance = null;
@@ -94,7 +92,7 @@
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             editorInstance = monaco.editor.create(document.getElementById('monaco-root'), {
-                value: "// 「フォルダを開く」ボタンから、パソコンの作業フォルダを選択してください。",
+                value: "// 使い方:\n// 1. デスクトップ等に新しくフォルダ（例: test-project）を作ります。\n// 2. その中に html や js ファイルを入れます。\n// 3. この画面の「フォルダを開く」からそのフォルダを選択するか、サイドバーに直接フォルダをドロップしてください。",
                 language: 'javascript',
                 theme: 'vs-dark',
                 fontSize: 15,
@@ -106,7 +104,7 @@
                     filesStorage[currentFileKey].content = editorInstance.getValue();
                     if (filesStorage[currentFileKey].isSaved) {
                         filesStorage[currentFileKey].isSaved = false;
-                        const item = document.getElementById(`file-${btoa(currentFileKey)}`);
+                        const item = document.getElementById(`file-${btoa(encodeURIComponent(currentFileKey))}`);
                         if (item) item.classList.add('unsaved');
                         updateGlobalStatus();
                     }
@@ -114,57 +112,103 @@
             });
         });
 
-        // パソコン内の本物のフォルダを選択させる関数
+        // ボタンからフォルダを開く場合
         async function openLocalFolder() {
             try {
-                // ブラウザにフォルダ選択ダイアログを表示させる（File System Access API）
                 const folderHandle = await window.showDirectoryPicker();
-                filesStorage = {}; // 初期化
-                
-                // フォルダ内のファイルを再帰的にスキャン
+                filesStorage = {}; 
                 await readDirectory(folderHandle, folderHandle.name);
-                
-                // 最初のファイルを開く
-                const firstKey = Object.keys(filesStorage)[0];
-                if (firstKey) {
-                    switchFile(firstKey);
-                }
+                openFirstAvailableFile();
             } catch (err) {
-                console.error("フォルダの変更権限が拒否されたか、キャンセルされました:", err);
+                console.error("アクセスが拒否されたか、キャンセルされました:", err);
             }
         }
 
-        // フォルダ内部を走査してファイルをメモリに格納する
+        // フォルダ内部を走査してファイルを格納（未知のファイル形式にも対応する防御的コーディング）
         async function readDirectory(dirHandle, currentPath) {
             for await (const entry of dirHandle.values()) {
                 if (entry.kind === 'file') {
-                    const file = await entry.getFile();
-                    const text = await file.text();
-                    const ext = entry.name.split('.').pop();
-                    
-                    let lang = 'javascript';
-                    if (ext === 'html' || ext === 'htm') lang = 'html';
-                    if (ext === 'css') lang = 'css';
-                    if (ext === 'json') lang = 'json';
+                    try {
+                        const file = await entry.getFile();
+                        const text = await file.text();
+                        const ext = entry.name.split('.').pop().toLowerCase();
+                        
+                        // 拡張子ごとのエディタ表示言語の判定
+                        let lang = 'plaintext';
+                        if (['html', 'htm'].includes(ext)) lang = 'html';
+                        else if (['js', 'mjs', 'cjs'].includes(ext)) lang = 'javascript';
+                        else if (ext === 'css') lang = 'css';
+                        else if (ext === 'json') lang = 'json';
+                        else if (ext === 'md') lang = 'markdown';
 
-                    const fullPath = `${currentPath}/${entry.name}`;
+                        const fullPath = `${currentPath}/${entry.name}`;
 
-                    // ファイルデータと一緒に「本物のファイルオブジェクト(handle)」を記憶させておく
-                    filesStorage[fullPath] = {
-                        name: entry.name,
-                        path: fullPath,
-                        content: text,
-                        language: lang,
-                        isSaved: true,
-                        fileHandle: entry // ★これが上書き保存の「鍵」になります
-                    };
+                        filesStorage[fullPath] = {
+                            name: entry.name,
+                            path: fullPath,
+                            content: text,
+                            language: lang,
+                            isSaved: true,
+                            fileHandle: entry 
+                        };
+                    } catch (fileErr) {
+                        console.warn("ファイル読み込みスキップ:", entry.name, fileErr);
+                    }
                 } else if (entry.kind === 'directory') {
-                    // サブフォルダがあればさらに深く入る
                     await readDirectory(entry, `${currentPath}/${entry.name}`);
                 }
             }
             renderFileList();
             updateGlobalStatus();
+        }
+
+        // ドロップされたときのイベント
+        const sidebar = document.getElementById('sidebar');
+        sidebar.addEventListener('dragover', (e) => { e.preventDefault(); sidebar.style.backgroundColor = "#444"; });
+        sidebar.addEventListener('dragleave', () => { sidebar.style.backgroundColor = "#333"; });
+        sidebar.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            sidebar.style.backgroundColor = "#333";
+
+            // DataTransferItemからFileSystemHandle（本物のファイルシステムを操作する鍵）を直接取得
+            const items = e.dataTransfer.items;
+            if (items) {
+                filesStorage = {}; // 初期化
+                for (let i = 0; i < items.length; i++) {
+                    // getAsFileSystemHandle はモダンブラウザでフォルダドロップ時に本物のハンドルを掴むためのAPI
+                    if (typeof items[i].getAsFileSystemHandle === 'function') {
+                        const handle = await items[i].getAsFileSystemHandle();
+                        if (handle.kind === 'directory') {
+                            await readDirectory(handle, handle.name);
+                        } else if (handle.kind === 'file') {
+                            // 単体ファイルがドロップされた場合
+                            const file = await handle.getFile();
+                            const text = await file.text();
+                            const ext = handle.name.split('.').pop().toLowerCase();
+                            let lang = 'javascript';
+                            if (['html', 'htm'].includes(ext)) lang = 'html';
+                            filesStorage[handle.name] = {
+                                name: handle.name,
+                                path: handle.name,
+                                content: text,
+                                language: lang,
+                                isSaved: true,
+                                fileHandle: handle
+                            };
+                        }
+                    }
+                }
+                renderFileList();
+                updateGlobalStatus();
+                openFirstAvailableFile();
+            }
+        });
+
+        function openFirstAvailableFile() {
+            const keys = Object.keys(filesStorage);
+            if (keys.length > 0) {
+                switchFile(keys[0]);
+            }
         }
 
         function updateGlobalStatus() {
@@ -193,8 +237,12 @@
             const breadcrumbsContainer = document.getElementById('breadcrumbs');
             const parts = filePath.split('/');
             const fileName = parts.pop();
-            const folderPath = parts.join(' > ');
-            breadcrumbsContainer.innerHTML = `${folderPath} > <span>${fileName}</span>`;
+            if(parts.length === 0) {
+                breadcrumbsContainer.innerHTML = `<span>${fileName}</span>`;
+            } else {
+                const folderPath = parts.join(' > ');
+                breadcrumbsContainer.innerHTML = `${folderPath} > <span>${fileName}</span>`;
+            }
         }
 
         function renderFileList() {
@@ -203,11 +251,11 @@
             for (let key in filesStorage) {
                 const file = filesStorage[key];
                 const item = document.createElement('div');
-                item.id = `file-${btoa(key)}`;
+                item.id = `file-${btoa(encodeURIComponent(key))}`;
                 item.className = `file-item ${file.language === 'javascript' ? 'js-file' : ''}`;
                 if (key === currentFileKey) item.classList.add('active');
                 if (!file.isSaved) item.classList.add('unsaved');
-                const icon = file.language === 'javascript' ? 'JS' : '<>';
+                const icon = file.language === 'javascript' ? 'JS' : (file.language === 'html' ? '<>' : '📄');
                 item.innerText = `${icon} ${file.name}`;
                 item.onclick = () => switchFile(key);
                 fileList.appendChild(item);
@@ -226,30 +274,23 @@
             updateGlobalStatus();
         }
 
-        // --- ★本物のファイルへ上書き保存する処理 (Ctrl + S) ---
         window.addEventListener('keydown', async function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
-                
                 const activeFile = filesStorage[currentFileKey];
                 if (activeFile && activeFile.fileHandle) {
                     try {
-                        // パソコン内の本物のファイルに書き込みストリームを開く
                         const writable = await activeFile.fileHandle.createWritable();
-                        // エディタの現在の文字を書き込む
                         await writable.write(editorInstance.getValue());
-                        // ファイルを閉じて保存を確定
                         await writable.close();
 
-                        // 内部ステータスを「保存済み」に変更
                         activeFile.isSaved = true;
-                        const item = document.getElementById(`file-${btoa(currentFileKey)}`);
+                        const item = document.getElementById(`file-${btoa(encodeURIComponent(currentFileKey))}`);
                         if (item) item.classList.remove('unsaved');
-                        
                         updateGlobalStatus();
-                        console.log(`【PCのローカルファイルに完全上書き成功】: ${activeFile.path}`);
+                        console.log(`[上書き保存成功]: ${activeFile.path}`);
                     } catch (err) {
-                        alert("ファイルの保存権限がありません、またはブラウザが対応していません。");
+                        alert("保存に失敗しました。フォルダの編集権限を確認してください。");
                         console.error(err);
                     }
                 }
