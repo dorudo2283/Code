@@ -22,7 +22,7 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        .logo { font-size: 24px; font-weight: bold; color: #0d2c54; cursor: pointer; }
+        .logo { font-size: 24px; font-weight: bold; color: #0d2c54; cursor: pointer; user-select: none; }
         .logo span { color: #2a7b4c; }
         
         /* 検索窓（クリアボタン「×」付き） */
@@ -52,7 +52,7 @@
             font-size: 14px; border-bottom: 1px solid #ffcdcd;
         }
 
-        /* カルーセル（広告バー：デザインを崩さず動くように調整） */
+        /* カルーセル */
         .carousel-container {
             display: flex; align-items: center; justify-content: center;
             margin: 25px auto; max-width: 1000px; gap: 20px; padding: 0 20px;
@@ -83,7 +83,7 @@
         .column:first-child { border-right: 1px solid #aaa; }
         
         .column-title {
-            background-color: #ccc; padding: 12px; text-align: center;
+            background-color: #f0f0f0; padding: 12px; text-align: center;
             font-size: 18px; font-weight: bold; letter-spacing: 0.3em;
             border-bottom: 1px solid #aaa;
         }
@@ -100,29 +100,34 @@
         .novel-title-link:hover { text-decoration: underline; }
         .rank-badge { color: #ffaa00; font-weight: bold; margin-right: 5px; font-size: 18px; }
 
-        /* 【画面1：検索結果】専用スタイル */
+        /* 【画面1：検索結果】専用スタイル（認知科学に基づき視認性を向上） */
         .search-result-title-text {
             text-align: center; font-size: 20px; color: #555; margin: 30px 0 20px 0;
         }
         .search-result-box {
-            border: 1px solid #333; background-color: #ccc;
+            border: 1px solid #ddd; background-color: #fff;
+            border-radius: 6px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 25px; width: 100%; max-width: 900px; margin: 0 auto 15px auto;
+            padding: 20px 25px; width: 100%; max-width: 900px; margin: 0 auto 15px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .result-main { display: flex; align-items: baseline; gap: 40px; }
-        .result-title { font-size: 22px; font-weight: bold; color: #0066cc; cursor: pointer; text-decoration: underline; }
-        .result-meta { font-size: 14px; color: #333; line-height: 1.5; }
+        .result-title { font-size: 22px; font-weight: bold; color: #0066cc; cursor: pointer; }
+        .result-title:hover { text-decoration: underline; }
+        .result-meta { font-size: 14px; color: #666; line-height: 1.5; }
         .result-fav-status { font-size: 14px; color: #333; text-align: right; font-weight: bold; }
 
         /* しっかりとした登録UI（未登録・登録済みバッジ） */
         .status-badge {
-            display: inline-block; padding: 4px 10px; font-size: 13px; border-radius: 4px;
-            border: 1px solid #aaa; background-color: #f5f5f5; color: #444; cursor: pointer;
+            display: inline-block; padding: 6px 14px; font-size: 13px; border-radius: 4px;
+            border: 1px solid #ccc; background-color: #fff; color: #666; cursor: pointer;
             user-select: none; transition: all 0.2s; text-align: center;
         }
+        .status-badge:hover { background-color: #f5f5f5; }
         .status-badge.is-fav {
             background-color: #e6f4ea; color: #137333; border-color: #a3dab8; font-weight: bold;
         }
+        .status-badge.is-fav:hover { background-color: #d2edd9; }
 
         /* 【画面2：本文閲覧】専用スタイル */
         .viewer-container {
@@ -135,9 +140,10 @@
         }
         .viewer-left { display: flex; flex-direction: column; gap: 12px; }
         .viewer-back-btn {
-            padding: 4px 8px; font-size: 12px; background-color: #eee;
+            padding: 6px 12px; font-size: 12px; background-color: #eee;
             border: 1px solid #ccc; border-radius: 3px; cursor: pointer; width: fit-content;
         }
+        .viewer-back-btn:hover { background-color: #e0e0e0; }
         .viewer-center-title { font-size: 32px; font-weight: bold; text-align: center; flex: 1; padding: 0 20px; }
         .viewer-right-meta { text-align: right; font-size: 14px; color: #444; line-height: 1.6; }
         
@@ -153,7 +159,7 @@
 <body>
 
     <header>
-        <div class="logo" onclick="showDefaultPage()">S<span>tory</span> B<span>ase</span> <span style="font-size: 14px; color:#333; font-weight:normal;">〜 祝！WEB開設 〜</span></div>
+        <div class="logo" onclick="resetToHome()">S<span>tory</span> B<span>ase</span> <span style="font-size: 14px; color:#333; font-weight:normal;">〜 祝！WEB開設 〜</span></div>
         <div class="search-area">
             <div class="search-input-wrapper">
                 <input type="text" id="search-input" placeholder="作品名・作者名で検索">
@@ -200,8 +206,8 @@
         <div class="viewer-container">
             <div class="viewer-header">
                 <div class="viewer-left">
-                    <span class="status-badge" id="v-fav-badge" onclick="toggleFavoriteFromViewer()">未登録</span>
-                    <button class="viewer-back-btn" onclick="showDefaultPage()">一覧へ戻る</button>
+                    <span class="status-badge" id="v-fav-badge" onclick="handleViewerFavClick()">未登録</span>
+                    <button class="viewer-back-btn" onclick="backToPreviousScreen()">戻る</button>
                 </div>
                 <div class="viewer-center-title" id="v-title">作品タイトル</div>
                 <div class="viewer-right-meta">
@@ -215,19 +221,20 @@
         </div>
     </div>
 
-    <script src="Shosetsu.js"></script>
     <script>
-        // バックアップ用ダミーデータ（外部ファイルがない場合でも動作を担保）
+        // バックアップ用ダミーデータ
         const fallbackData = [
-            { id: 1, title: "絶望の彼方で待つ光", author: "タロウ", date: "2026-07-07", content: "第一章 終わりの始まり\n\n世界がその光を失ってから、どれほどの月日が流れただろうか。\n足元に広がる荒野は冷たく、乾いた風だけが耳を通り抜けていく。" },
+            { id: 1, title: "絶望の彼方で待つ光", author: "タロウ", date: "2026-07-07", content: "第一章 終わりの始まり\n\n世界がその光を失ってから、どれほどの月日が流れただろうか。\n足元に広がる荒野は冷たく、乾いた風だけが耳を通り抜けてしていく。" },
             { id: 2, title: "群青色のサイダー", author: "アオイ", date: "2026-07-06", content: "夏の匂いがした。\nすれ違う電車の窓から差し込む陽射しは痛いくらいに眩しい。" }
         ];
         const novelData = (typeof window.novelData !== 'undefined') ? window.novelData : fallbackData;
 
-        let favoriteIds = []; // 登録された小説のIDリスト
-        let currentViewingId = null; // 現在読んでいる小説のID
+        // アプリケーションの状態（State）管理
+        let favoriteIds = []; 
+        let currentViewingId = null; 
+        let currentScreen = 'home'; // 'home' | 'search' | 'viewer'
+        let previousScreen = 'home'; // 戻るボタン用の履歴管理
 
-        // カルーセル用データ（左右の予告枠と連動するテキスト）
         const carouselSlides = [
             { title: "Story Base 開設しました！", sub: "オリジナル小説募集中！", left: "広告枠C", right: "広告枠B" },
             { title: "広告枠Bの内容です", sub: "ここにサブテキストB", left: "Story Base 開設", right: "広告枠C" },
@@ -236,22 +243,21 @@
         let currentSlideIndex = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
-            // 初期画面とカルーセルの描画を実行（これで白飛びを防ぎます）
             showDefaultPage();
             updateCarousel();
 
-            // 検索イベント
             document.getElementById('search-btn').addEventListener('click', executeSearch);
             document.getElementById('search-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') executeSearch();
             });
 
-            // クリア（×）ボタン
             const searchInput = document.getElementById('search-input');
             const clearBtn = document.getElementById('clear-btn');
+            
             searchInput.addEventListener('input', () => {
                 clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
             });
+            
             clearBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 clearBtn.style.display = 'none';
@@ -259,8 +265,32 @@
             });
         });
 
-        // ホーム画面へのリセット
+        // 状態変更時のUI一斉更新（データ駆動型の設計アプローチ）
+        function updateAllLists() {
+            renderHomeRecentList();
+            renderRightFavoriteList();
+            if (currentScreen === 'search') {
+                renderSearchResults();
+            }
+            if (currentScreen === 'viewer') {
+                updateViewerFavBadge();
+            }
+        }
+
+        // お気に入り状態のコアロジックを一元化
+        function toggleFavorite(id) {
+            const index = favoriteIds.indexOf(id);
+            if (index === -1) {
+                favoriteIds.push(id);
+            } else {
+                favoriteIds.splice(index, 1);
+            }
+            updateAllLists();
+        }
+
+        // ホーム画面へ遷移
         function showDefaultPage() {
+            currentScreen = 'home';
             document.getElementById('news-bar').style.display = 'block';
             document.getElementById('carousel-area').style.display = 'flex';
             document.getElementById('section-default').style.display = 'block';
@@ -268,29 +298,45 @@
             document.getElementById('section-viewer').style.display = 'none';
             
             currentViewingId = null;
-
-            renderHomeRecentList();
-            renderRightFavoriteList();
+            updateAllLists();
         }
 
-        // カルーセルの中身を入れ替える処理
+        // ロゴクリック時は検索条件も完全リセット
+        function resetToHome() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-btn').style.display = 'none';
+            showDefaultPage();
+        }
+
+        // 賢い「戻る」ボタンの挙動制御
+        function backToPreviousScreen() {
+            if (previousScreen === 'search') {
+                currentScreen = 'search';
+                document.getElementById('section-default').style.display = 'none';
+                document.getElementById('section-viewer').style.display = 'none';
+                document.getElementById('section-search-result').style.display = 'block';
+            } else {
+                showDefaultPage();
+            }
+        }
+
+        // カルーセル制御
         function updateCarousel() {
             const slide = carouselSlides[currentSlideIndex];
             document.getElementById('carousel-title').innerHTML = slide.title === "Story Base 開設しました！" 
-                ? `<span class="logo" onclick="showDefaultPage()">S<span>tory</span> B<span>ase</span></span> 開設しました！`
+                ? `<span class="logo" onclick="resetToHome()">S<span>tory</span> B<span>ase</span></span> 開設しました！`
                 : slide.title;
             document.getElementById('carousel-sub').innerText = slide.sub;
             document.getElementById('carousel-left-box').innerText = slide.left;
             document.getElementById('carousel-right-box').innerText = slide.right;
         }
 
-        // 矢印クリックでスライド変更
         function moveCarousel(dir) {
             currentSlideIndex = (currentSlideIndex + dir + carouselSlides.length) % carouselSlides.length;
             updateCarousel();
         }
 
-        // ホーム左：新着順
+        // レンダー：新着順
         function renderHomeRecentList() {
             const container = document.getElementById('recent-list');
             container.innerHTML = '';
@@ -307,7 +353,7 @@
             });
         }
 
-        // ホーム右：登録した小説
+        // レンダー：お気に入り
         function renderRightFavoriteList() {
             const container = document.getElementById('registered-list');
             container.innerHTML = '';
@@ -328,7 +374,8 @@
             });
         }
 
-        // 検索ロジック（ソート機能は除外）
+        // 検索実行
+        let globalFilteredList = []; // 検索結果を保持するスコープ
         function executeSearch() {
             const keyword = document.getElementById('search-input').value.trim().toLowerCase();
 
@@ -337,13 +384,16 @@
                 return;
             }
 
+            previousScreen = 'home'; // 検索を新規で行うため、戻り先履歴をリセット
+            currentScreen = 'search';
+
             document.getElementById('news-bar').style.display = 'none';
             document.getElementById('carousel-area').style.display = 'none';
             document.getElementById('section-default').style.display = 'none';
             document.getElementById('section-search-result').style.display = 'block';
             document.getElementById('section-viewer').style.display = 'none';
 
-            let filteredList = [];
+            globalFilteredList = [];
             novelData.forEach(novel => {
                 const titleLower = novel.title.toLowerCase();
                 const authorLower = novel.author.toLowerCase();
@@ -356,23 +406,27 @@
                 }
 
                 if (score > 0) {
-                    filteredList.push({ ...novel, _score: score });
+                    globalFilteredList.push({ ...novel, _score: score });
                 }
             });
 
-            filteredList.sort((a, b) => b._score - a._score);
+            globalFilteredList.sort((a, b) => b._score - a._score);
+            renderSearchResults();
+        }
 
-            document.getElementById('search-result-title-text').innerText = `「 ${document.getElementById('search-input').value} 」の結果（${filteredList.length}件）`;
+        // レンダー：検索結果（UI部品の再描画を独立化）
+        function renderSearchResults() {
+            document.getElementById('search-result-title-text').innerText = `「 ${document.getElementById('search-input').value} 」の結果（${globalFilteredList.length}件）`;
 
             const resultsContainer = document.getElementById('search-results-container');
             resultsContainer.innerHTML = '';
 
-            if (filteredList.length === 0) {
+            if (globalFilteredList.length === 0) {
                 resultsContainer.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">該当する作品がありませんでした。</p>';
                 return;
             }
 
-            filteredList.forEach(novel => {
+            globalFilteredList.forEach(novel => {
                 const isFav = favoriteIds.includes(novel.id);
                 const favStatusText = isFav ? "登録済み" : "未登録";
                 const dateObj = new Date(novel.date);
@@ -388,7 +442,7 @@
                             </div>
                         </div>
                         <div class="result-fav-status">
-                            <span class="status-badge ${isFav ? 'is-fav' : ''}" onclick="toggleFavoriteInline(${novel.id}, this)">${favStatusText}</span>
+                            <span class="status-badge ${isFav ? 'is-fav' : ''}" onclick="toggleFavorite(${novel.id})">${favStatusText}</span>
                         </div>
                     </div>
                 `;
@@ -396,26 +450,14 @@
             });
         }
 
-        // 検索結果からの直接登録UI
-        function toggleFavoriteInline(id, element) {
-            const index = favoriteIds.indexOf(id);
-            if (index === -1) {
-                favoriteIds.push(id);
-                element.innerText = "登録済み";
-                element.classList.add('is-fav');
-            } else {
-                favoriteIds.splice(index, 1);
-                element.innerText = "未登録";
-                element.classList.remove('is-fav');
-            }
-            renderRightFavoriteList();
-        }
-
-        // 本文閲覧
+        // 本文閲覧画面へ
         function openViewer(id) {
             const novel = novelData.find(n => n.id === id);
             if (!novel) return;
 
+            // 閲覧画面に入る前の画面を「戻り先」として記録
+            previousScreen = currentScreen; 
+            currentScreen = 'viewer';
             currentViewingId = id;
 
             document.getElementById('news-bar').style.display = 'none';
@@ -446,18 +488,9 @@
             }
         }
 
-        function toggleFavoriteFromViewer() {
+        function handleViewerFavClick() {
             if (!currentViewingId) return;
-
-            const index = favoriteIds.indexOf(currentViewingId);
-            if (index === -1) {
-                favoriteIds.push(currentViewingId);
-            } else {
-                favoriteIds.splice(index, 1);
-            }
-
-            updateViewerFavBadge();
-            renderRightFavoriteList();
+            toggleFavorite(currentViewingId);
         }
     </script>
 </body>
