@@ -406,21 +406,26 @@
             updateCarousel();
         }
 
-        function renderHomeRecentList() {
-            const container = document.getElementById('recent-list');
-            container.innerHTML = '';
-            const sorted = [...novelData].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sorted.forEach((novel, index) => {
-                const crown = index === 0 ? "👑 " : "";
-                container.insertAdjacentHTML('beforeend', `
-                    <div class="novel-item">
-                        <span class="rank-badge">${crown}${index + 1}</span>
-                        <span class="novel-title-link" onclick="openViewer(${novel.id})">${novel.title}</span>
-                    </div>
-                `);
-            });
-        }
+      function renderHomeRecentList() {
+    const container = document.getElementById('recent-list');
+    container.innerHTML = '';
+    
+    const sorted = [...novelData].sort((a, b) => {
+        const dateA = a.date || "";
+        const dateB = b.date || "";
+        return dateB.localeCompare(dateA);
+    });
+    
+    sorted.forEach((novel, index) => {
+        const crown = index === 0 ? "👑 " : "";
+        container.insertAdjacentHTML('beforeend', `
+            <div class="novel-item">
+                <span class="rank-badge">${crown}${index + 1}</span>
+                <span class="novel-title-link" onclick="openViewer(${novel.id})">${novel.title}</span>
+            </div>
+        `);
+    });
+}
 
         function renderRightFavoriteList() {
             const container = document.getElementById('registered-list');
