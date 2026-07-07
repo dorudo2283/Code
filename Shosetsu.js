@@ -50,5 +50,5 @@ const novelData = [
             }
         ],
         date: "2026-07-05"
-    }
+    },
 ];
