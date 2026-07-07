@@ -7,192 +7,154 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #2b303a;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
         }
 
-        /* ヘッダー */
+        /* ヘッダー：常に最上部に固定（検索窓あり） */
         header {
             background-color: #ff8e8e;
-            padding: 16px 24px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-            box-shadow: 0 2px 8px rgba(255, 142, 142, 0.3);
         }
-        .logo { font-size: 24px; font-weight: 800; color: #0d2c54; cursor: pointer; user-select: none; letter-spacing: -0.02em; }
+        .logo { font-size: 24px; font-weight: bold; color: #0d2c54; cursor: pointer; user-select: none; }
         .logo span { color: #2a7b4c; }
         
-        /* 検索窓 */
+        /* 検索窓（クリアボタン「×」付き） */
         .search-area { display: flex; gap: 8px; align-items: center; }
         .search-input-wrapper { position: relative; display: inline-block; }
         .search-input-wrapper input {
-            padding: 8px 32px 8px 14px;
-            width: 260px;
-            border: 1px solid rgba(0,0,0,0.15);
-            border-radius: 6px;
+            padding: 6px 30px 6px 12px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             font-size: 14px;
-            transition: all 0.2s;
-            background-color: rgba(255,255,255,0.9);
-        }
-        .search-input-wrapper input:focus {
-            outline: none;
-            border-color: #0d2c54;
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(13, 44, 84, 0.1);
         }
         .clear-btn {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            border: none; background: none; color: #999; font-size: 18px; cursor: pointer; display: none;
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            border: none; background: none; color: #999; font-size: 16px; cursor: pointer; display: none;
         }
         .clear-btn:hover { color: #333; }
 
         .search-area button {
-            padding: 8px 16px; background-color: #fff; border: 1px solid rgba(0,0,0,0.15);
-            border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; color: #444;
-            transition: all 0.2s;
+            padding: 6px 12px; background-color: #fff; border: 1px solid #999;
+            border-radius: 4px; cursor: pointer; font-size: 14px;
         }
-        .search-area button:hover { background-color: #f0f0f0; border-color: #999; }
 
         /* お知らせバー */
         .news-bar {
-            background-color: #ffe4e4; padding: 10px; text-align: center;
-            font-size: 14px; color: #d63031; font-weight: 600;
-            border-bottom: 1px solid #ffcdcd;
+            background-color: #ffe4e4; padding: 8px; text-align: center;
+            font-size: 14px; border-bottom: 1px solid #ffcdcd;
         }
 
         /* カルーセル */
         .carousel-container {
             display: flex; align-items: center; justify-content: center;
-            margin: 30px auto; max-width: 1000px; gap: 20px; padding: 0 20px;
+            margin: 25px auto; max-width: 1000px; gap: 20px; padding: 0 20px;
         }
-        .arrow { font-size: 30px; cursor: pointer; user-select: none; padding: 10px; color: #888; transition: color 0.2s; }
-        .arrow:hover { color: #333; }
+        .arrow { font-size: 30px; cursor: pointer; user-select: none; padding: 10px; }
         .side-box { 
-            width: 120px; height: 120px; border: 1px solid #e0e0e0; background-color: #fff; opacity: 0.4; 
-            display: flex; align-items: center; justify-content: center; font-size: 11px; color: #666; text-align: center; padding: 8px;
-            border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: normal; /* タイトルが長くても溢れないよう調整 */
+            width: 80px; height: 120px; border: 1px solid #ccc; background-color: #fff; opacity: 0.4; 
+            display: flex; align-items: center; justify-content: center; font-size: 11px; color: #666; text-align: center; padding: 5px;
         }
         .main-banner {
-            flex: 1; border: 2px solid #333; background-color: #fff; text-align: center; padding: 28px 24px;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;
+            flex: 1; border: 2px solid #333; background-color: #fff; text-align: center; padding: 25px 20px;
         }
-        .main-banner:hover { transform: translateY(-2px); }
-        .banner-title { font-size: 26px; font-weight: 700; margin-bottom: 12px; color: #111; }
-        .banner-sub { background-color: #f7d6c8; padding: 8px 16px; font-weight: bold; color: #b84116; border-radius: 4px; display: inline-block; }
+        .banner-title { font-size: 26px; margin-bottom: 10px; }
+        .banner-sub { background-color: #f7d6c8; padding: 8px; font-weight: bold; color: #b84116; }
 
         /* 全体コンテナ */
-        .page-section { max-width: 1200px; margin: 0 auto 60px auto; padding: 0 20px; }
+        .page-section {
+            max-width: 1200px;
+            margin: 0 auto 50px auto;
+            padding: 0 20px;
+        }
 
         /* 【ホーム用】2カラムレイアウト */
         .default-layout {
-            display: flex; background-color: #fff; border-radius: 8px; overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            display: flex; border: 1px solid #aaa; background-color: #fff;
         }
-        .column { flex: 1; min-height: 480px; display: flex; flex-direction: column; }
-        .column:first-child { border-right: 1px solid #edf0f5; }
+        .column { flex: 1; min-height: 450px; display: flex; flex-direction: column; }
+        .column:first-child { border-right: 1px solid #aaa; }
         
         .column-title {
-            background-color: #f8fafc; padding: 16px; text-align: center;
-            font-size: 16px; font-weight: 700; letter-spacing: 0.4em; color: #4a5568;
-            border-bottom: 1px solid #edf0f5;
+            background-color: #f0f0f0; padding: 12px; text-align: center;
+            font-size: 18px; font-weight: bold; letter-spacing: 0.3em;
+            border-bottom: 1px solid #aaa;
         }
-        .list-container { padding: 24px; flex: 1; }
-        .scrollable-list { max-height: 480px; overflow-y: auto; }
+        .list-container { padding: 20px; flex: 1; }
+        .scrollable-list { max-height: 450px; overflow-y: auto; }
 
-        /* 小説アイテム */
+        /* 小説アイテム（ホーム共通） */
         .novel-item {
-            margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dashed #edf0f5;
-            display: flex; align-items: center;
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee;
         }
         .novel-title-link {
-            color: #0066cc; text-decoration: none; font-weight: 700; font-size: 17px; cursor: pointer;
-            transition: color 0.1s;
+            color: #0066cc; text-decoration: none; font-weight: bold; font-size: 18px; cursor: pointer;
         }
-        .novel-title-link:hover { color: #004499; text-decoration: underline; }
-        .rank-badge { color: #ffaa00; font-weight: 700; margin-right: 10px; font-size: 18px; width: 40px; display: inline-block; }
+        .novel-title-link:hover { text-decoration: underline; }
+        .rank-badge { color: #ffaa00; font-weight: bold; margin-right: 5px; font-size: 18px; }
 
-        /* 【検索結果】 */
-        .search-result-title-text { text-align: center; font-size: 20px; font-weight: 700; color: #4a5568; margin: 40px 0 24px 0; }
+        /* 【画面1：検索結果】専用スタイル（認知科学に基づき視認性を向上） */
+        .search-result-title-text {
+            text-align: center; font-size: 20px; color: #555; margin: 30px 0 20px 0;
+        }
         .search-result-box {
-            border: 1px solid #e2e8f0; background-color: #fff; border-radius: 8px;
+            border: 1px solid #ddd; background-color: #fff;
+            border-radius: 6px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 24px 30px; width: 100%; max-width: 900px; margin: 0 auto 16px auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;
+            padding: 20px 25px; width: 100%; max-width: 900px; margin: 0 auto 15px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .search-result-box:hover { transform: translateY(-2px); }
         .result-main { display: flex; align-items: baseline; gap: 40px; }
-        .result-title { font-size: 20px; font-weight: bold; color: #0066cc; cursor: pointer; }
+        .result-title { font-size: 22px; font-weight: bold; color: #0066cc; cursor: pointer; }
         .result-title:hover { text-decoration: underline; }
-        .result-meta { font-size: 13px; color: #718096; line-height: 1.6; }
+        .result-meta { font-size: 14px; color: #666; line-height: 1.5; }
+        .result-fav-status { font-size: 14px; color: #333; text-align: right; font-weight: bold; }
 
-        /* 登録バッジ */
+        /* しっかりとした登録UI（未登録・登録済みバッジ） */
         .status-badge {
-            display: inline-block; padding: 6px 14px; font-size: 13px; border-radius: 20px;
-            border: 1px solid #cbd5e0; background-color: #fff; color: #4a5568; cursor: pointer;
-            user-select: none; transition: all 0.2s; text-align: center; font-weight: 600;
+            display: inline-block; padding: 6px 14px; font-size: 13px; border-radius: 4px;
+            border: 1px solid #ccc; background-color: #fff; color: #666; cursor: pointer;
+            user-select: none; transition: all 0.2s; text-align: center;
         }
-        .status-badge:hover { background-color: #f7fafc; border-color: #a0aec0; }
-        .status-badge.is-fav { background-color: #e6f4ea; color: #137333; border-color: #a3dab8; font-weight: bold; }
+        .status-badge:hover { background-color: #f5f5f5; }
+        .status-badge.is-fav {
+            background-color: #e6f4ea; color: #137333; border-color: #a3dab8; font-weight: bold;
+        }
         .status-badge.is-fav:hover { background-color: #d2edd9; }
 
-        /* 本文閲覧：章わけ2カラムレイアウト */
-        .viewer-layout { display: flex; gap: 30px; max-width: 1100px; margin: 40px auto; align-items: flex-start; }
-        
-        /* 左サイドバー（目次） */
-        .viewer-sidebar {
-            width: 260px; background-color: #fff; padding: 24px; border-radius: 8px;
-            border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            position: sticky; top: 30px;
-        }
-        .sidebar-title {
-            font-size: 15px; font-weight: 700; color: #4a5568; margin-bottom: 16px;
-            padding-bottom: 8px; border-bottom: 2px solid #ff8e8e; letter-spacing: 0.1em;
-        }
-        .chapter-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .chapter-item {
-            font-size: 14px; color: #4a5568; cursor: pointer; padding: 8px 12px;
-            border-radius: 4px; transition: all 0.2s; line-height: 1.4; font-weight: 600;
-        }
-        .chapter-item:hover { background-color: #fff1f1; color: #ff8e8e; }
-
-        /* 右コンテンツ */
-        .viewer-main-content {
-            flex: 1; background-color: #fff; padding: 50px 60px;
-            border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        /* 【画面2：本文閲覧】専用スタイル */
+        .viewer-container {
+            max-width: 900px; margin: 40px auto; background-color: #fff;
+            padding: 40px; border: 1px solid #ddd; border-radius: 4px;
         }
         .viewer-header {
             display: flex; justify-content: space-between; align-items: flex-start;
-            border-bottom: 2px solid #ff8e8e; padding-bottom: 24px; margin-bottom: 35px;
+            border-bottom: 2px solid #ff8e8e; padding-bottom: 20px; margin-bottom: 30px;
         }
-        .viewer-left { display: flex; flex-direction: column; gap: 14px; }
+        .viewer-left { display: flex; flex-direction: column; gap: 12px; }
         .viewer-back-btn {
-            padding: 6px 14px; font-size: 13px; background-color: #f7fafc; font-weight: 600;
-            border: 1px solid #cbd5e0; border-radius: 4px; cursor: pointer; width: fit-content; color: #4a5568;
+            padding: 6px 12px; font-size: 12px; background-color: #eee;
+            border: 1px solid #ccc; border-radius: 3px; cursor: pointer; width: fit-content;
         }
-        .viewer-back-btn:hover { background-color: #edf2f7; }
-        .viewer-center-title { font-size: 28px; font-weight: 800; text-align: center; flex: 1; padding: 0 20px; color: #1a202c; }
-        .viewer-right-meta { text-align: right; font-size: 13px; color: #718096; line-height: 1.6; }
+        .viewer-back-btn:hover { background-color: #e0e0e0; }
+        .viewer-center-title { font-size: 32px; font-weight: bold; text-align: center; flex: 1; padding: 0 20px; }
+        .viewer-right-meta { text-align: right; font-size: 14px; color: #444; line-height: 1.6; }
         
+        /* 明朝体の本文を表示 */
         .viewer-body-text {
             font-family: 'Shippori Mincho', 'YuMincho', '游明朝', 'MS Mincho', Georgia, serif;
-            font-size: 20px; line-height: 2.4; letter-spacing: 0.05em; color: #1a1a1a;
+            font-size: 22px; line-height: 2.5; letter-spacing: 0.06em;
+            white-space: pre-wrap; word-wrap: break-word; color: #111;
+            padding: 20px 10px 80px 10px;
         }
-        .viewer-chapter-wrapper { margin-bottom: 50px; }
-        .viewer-chapter-heading {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 22px; font-weight: 700; color: #0d2c54;
-            margin: 0 0 20px 0; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
-            scroll-margin-top: 40px;
-        }
-        .viewer-chapter-content { white-space: pre-wrap; word-wrap: break-word; margin-bottom: 30px; }
     </style>
-
-    <script src="Shosetsu.js"></script>
 </head>
 <body>
 
@@ -214,7 +176,7 @@
     <div class="carousel-container" id="carousel-area">
         <div class="arrow" onclick="moveCarousel(-1)">←</div>
         <div class="side-box" id="carousel-left-box"></div>
-        <div class="main-banner" onclick="clickCarouselBanner()">
+        <div class="main-banner">
             <div class="banner-title" id="carousel-title"></div>
             <div class="banner-sub" id="carousel-sub"></div>
         </div>
@@ -241,54 +203,49 @@
     </div>
 
     <div id="section-viewer" class="page-section" style="display: none;">
-        <div class="viewer-layout">
-            
-            <div class="viewer-sidebar">
-                <div class="sidebar-title">目次 / 章選択</div>
-                <ul class="chapter-list" id="v-sidebar-chapters"></ul>
-            </div>
-
-            <div class="viewer-main-content">
-                <div class="viewer-header">
-                    <div class="viewer-left">
-                        <span class="status-badge" id="v-fav-badge" onclick="handleViewerFavClick()">未登録</span>
-                        <button class="viewer-back-btn" onclick="backToPreviousScreen()">戻る</button>
-                    </div>
-                    <div class="viewer-center-title" id="v-title">作品タイトル</div>
-                    <div class="viewer-right-meta">
-                        <div id="v-date">2026年7月7日</div>
-                        <div id="v-author">作者：タロウ</div>
-                    </div>
+        <div class="viewer-container">
+            <div class="viewer-header">
+                <div class="viewer-left">
+                    <span class="status-badge" id="v-fav-badge" onclick="handleViewerFavClick()">未登録</span>
+                    <button class="viewer-back-btn" onclick="backToPreviousScreen()">戻る</button>
                 </div>
-                <div class="viewer-body-text" id="v-content"></div>
+                <div class="viewer-center-title" id="v-title">作品タイトル</div>
+                <div class="viewer-right-meta">
+                    <div id="v-date">2026年7月7日</div>
+                    <div id="v-author">作者：タロウ</div>
+                </div>
             </div>
-
+            <div class="viewer-body-text" id="v-content">
+                本文がここに表示されます。
+            </div>
         </div>
     </div>
 
     <script>
-        // Shosetsu.js から読み込んだデータを安全に取得（存在しない場合は空配列）
-        const novelData = (typeof window.novelData !== 'undefined') ? window.novelData : [];
+        // バックアップ用ダミーデータ
+        const fallbackData = [
+            { id: 1, title: "絶望の彼方で待つ光", author: "タロウ", date: "2026-07-07", content: "第一章 終わりの始まり\n\n世界がその光を失ってから、どれほどの月日が流れただろうか。\n足元に広がる荒野は冷たく、乾いた風だけが耳を通り抜けてしていく。" },
+            { id: 2, title: "群青色のサイダー", author: "アオイ", date: "2026-07-06", content: "夏の匂いがした。\nすれ違う電車の窓から差し込む陽射しは痛いくらいに眩しい。" }
+        ];
+        const novelData = (typeof window.novelData !== 'undefined') ? window.novelData : fallbackData;
 
-        // お気に入り機能の初期化
-        let favoriteIds = [];
-        try {
-            const savedFavs = localStorage.getItem('story_base_favorites');
-            if (savedFavs) {
-                favoriteIds = JSON.parse(savedFavs);
-            }
-        } catch (e) {
-            console.error("LocalStorageの読み込みに失敗しました:", e);
-        }
-
+        // アプリケーションの状態（State）管理
+        let favoriteIds = []; 
         let currentViewingId = null; 
-        let currentScreen = 'home'; 
-        let previousScreen = 'home'; 
+        let currentScreen = 'home'; // 'home' | 'search' | 'viewer'
+        let previousScreen = 'home'; // 戻るボタン用の履歴管理
+
+        const carouselSlides = [
+            { title: "Story Base 開設しました！", sub: "オリジナル小説募集中！", left: "広告枠C", right: "広告枠B" },
+            { title: "広告枠Bの内容です", sub: "ここにサブテキストB", left: "Story Base 開設", right: "広告枠C" },
+            { title: "広告枠Cの内容です", sub: "ここにサブテキストC", left: "広告枠B", right: "Story Base 開設" }
+        ];
         let currentSlideIndex = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
             showDefaultPage();
-            
+            updateCarousel();
+
             document.getElementById('search-btn').addEventListener('click', executeSearch);
             document.getElementById('search-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') executeSearch();
@@ -308,20 +265,19 @@
             });
         });
 
+        // 状態変更時のUI一斉更新（データ駆動型の設計アプローチ）
         function updateAllLists() {
             renderHomeRecentList();
             renderRightFavoriteList();
-            updateCarousel(); // カルーセルの状態をリスト更新時にも連動
-            if (currentScreen === 'search') renderSearchResults();
-            if (currentScreen === 'viewer') updateViewerFavBadge();
-
-            try {
-                localStorage.setItem('story_base_favorites', JSON.stringify(favoriteIds));
-            } catch (e) {
-                console.error("LocalStorageへの保存に失敗しました:", e);
+            if (currentScreen === 'search') {
+                renderSearchResults();
+            }
+            if (currentScreen === 'viewer') {
+                updateViewerFavBadge();
             }
         }
 
+        // お気に入り状態のコアロジックを一元化
         function toggleFavorite(id) {
             const index = favoriteIds.indexOf(id);
             if (index === -1) {
@@ -332,6 +288,7 @@
             updateAllLists();
         }
 
+        // ホーム画面へ遷移
         function showDefaultPage() {
             currentScreen = 'home';
             document.getElementById('news-bar').style.display = 'block';
@@ -339,24 +296,19 @@
             document.getElementById('section-default').style.display = 'block';
             document.getElementById('section-search-result').style.display = 'none';
             document.getElementById('section-viewer').style.display = 'none';
+            
             currentViewingId = null;
             updateAllLists();
         }
 
-        // 文字列の日付（YYYY-MM-DD）をタイムゾーンのズレなしで安全にフォーマットする関数
-        function formatDateSafely(dateStr) {
-            if (!dateStr) return "";
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return dateStr;
-            return `${parts[0]}年${parseInt(parts[1], 10)}月${parseInt(parts[2], 10)}日`;
-        }
-
+        // ロゴクリック時は検索条件も完全リセット
         function resetToHome() {
             document.getElementById('search-input').value = '';
             document.getElementById('clear-btn').style.display = 'none';
             showDefaultPage();
         }
 
+        // 賢い「戻る」ボタンの挙動制御
         function backToPreviousScreen() {
             if (previousScreen === 'search') {
                 currentScreen = 'search';
@@ -368,49 +320,27 @@
             }
         }
 
+        // カルーセル制御
         function updateCarousel() {
-            if (!novelData || novelData.length === 0) return;
-            
-            const len = novelData.length;
-            // 負のインデックスに対応するための安全な丸め込み
-            currentSlideIndex = (currentSlideIndex % len + len) % len;
-            
-            const currentNovel = novelData[currentSlideIndex];
-            const leftIdx = (currentSlideIndex - 1 + len) % len;
-            const rightIdx = (currentSlideIndex + 1) % len;
-
-            document.getElementById('carousel-title').innerText = currentNovel.title;
-            document.getElementById('carousel-sub').innerText = `作者: ${currentNovel.author} / ジャンル: ${currentNovel.genre}`;
-            document.getElementById('carousel-left-box').innerText = novelData[leftIdx].title;
-            document.getElementById('carousel-right-box').innerText = novelData[rightIdx].title;
+            const slide = carouselSlides[currentSlideIndex];
+            document.getElementById('carousel-title').innerHTML = slide.title === "Story Base 開設しました！" 
+                ? `<span class="logo" onclick="resetToHome()">S<span>tory</span> B<span>ase</span></span> 開設しました！`
+                : slide.title;
+            document.getElementById('carousel-sub').innerText = slide.sub;
+            document.getElementById('carousel-left-box').innerText = slide.left;
+            document.getElementById('carousel-right-box').innerText = slide.right;
         }
 
         function moveCarousel(dir) {
-            if (!novelData || novelData.length === 0) return;
-            currentSlideIndex = currentSlideIndex + dir;
+            currentSlideIndex = (currentSlideIndex + dir + carouselSlides.length) % carouselSlides.length;
             updateCarousel();
         }
 
-        function clickCarouselBanner() {
-            if (!novelData || novelData.length === 0) return;
-            const targetNovel = novelData[currentSlideIndex];
-            openViewer(targetNovel.id);
-        }
-
+        // レンダー：新着順
         function renderHomeRecentList() {
             const container = document.getElementById('recent-list');
             container.innerHTML = '';
-            
-            if (novelData.length === 0) {
-                container.innerHTML = '<p style="color:#aaa; text-align:center; padding:20px;">作品がありません。</p>';
-                return;
-            }
-
-            const sorted = [...novelData].sort((a, b) => {
-                const dateA = a.date || "";
-                const dateB = b.date || "";
-                return dateB.localeCompare(dateA);
-            });
+            const sorted = [...novelData].sort((a, b) => new Date(b.date) - new Date(a.date));
             
             sorted.forEach((novel, index) => {
                 const crown = index === 0 ? "👑 " : "";
@@ -423,6 +353,7 @@
             });
         }
 
+        // レンダー：お気に入り
         function renderRightFavoriteList() {
             const container = document.getElementById('registered-list');
             container.innerHTML = '';
@@ -443,12 +374,17 @@
             });
         }
 
-        let globalFilteredList = []; 
+        // 検索実行
+        let globalFilteredList = []; // 検索結果を保持するスコープ
         function executeSearch() {
             const keyword = document.getElementById('search-input').value.trim().toLowerCase();
-            if (keyword === "") { showDefaultPage(); return; }
 
-            previousScreen = 'home'; 
+            if (keyword === "") {
+                showDefaultPage();
+                return;
+            }
+
+            previousScreen = 'home'; // 検索を新規で行うため、戻り先履歴をリセット
             currentScreen = 'search';
 
             document.getElementById('news-bar').style.display = 'none';
@@ -463,18 +399,25 @@
                 const authorLower = novel.author.toLowerCase();
                 let score = 0;
 
-                if (titleLower === keyword || authorLower === keyword) { score = 100; } 
-                else if (titleLower.includes(keyword) || authorLower.includes(keyword)) { score = 10; }
+                if (titleLower === keyword || authorLower === keyword) {
+                    score = 100;
+                } else if (titleLower.includes(keyword) || authorLower.includes(keyword)) {
+                    score = 10;
+                }
 
-                if (score > 0) { globalFilteredList.push({ ...novel, _score: score }); }
+                if (score > 0) {
+                    globalFilteredList.push({ ...novel, _score: score });
+                }
             });
 
             globalFilteredList.sort((a, b) => b._score - a._score);
             renderSearchResults();
         }
 
+        // レンダー：検索結果（UI部品の再描画を独立化）
         function renderSearchResults() {
             document.getElementById('search-result-title-text').innerText = `「 ${document.getElementById('search-input').value} 」の結果（${globalFilteredList.length}件）`;
+
             const resultsContainer = document.getElementById('search-results-container');
             resultsContainer.innerHTML = '';
 
@@ -486,7 +429,8 @@
             globalFilteredList.forEach(novel => {
                 const isFav = favoriteIds.includes(novel.id);
                 const favStatusText = isFav ? "登録済み" : "未登録";
-                const formattedDate = formatDateSafely(novel.date);
+                const dateObj = new Date(novel.date);
+                const formattedDate = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
 
                 const html = `
                     <div class="search-result-box">
@@ -506,10 +450,12 @@
             });
         }
 
+        // 本文閲覧画面へ
         function openViewer(id) {
             const novel = novelData.find(n => n.id === id);
             if (!novel) return;
 
+            // 閲覧画面に入る前の画面を「戻り先」として記録
             previousScreen = currentScreen; 
             currentScreen = 'viewer';
             currentViewingId = id;
@@ -522,51 +468,17 @@
 
             document.getElementById('v-title').innerText = novel.title;
             document.getElementById('v-author').innerText = `作者：${novel.author}`;
-            document.getElementById('v-date').innerText = formatDateSafely(novel.date);
-
-            const contentArea = document.getElementById('v-content');
-            const sidebarContainer = document.getElementById('v-sidebar-chapters');
             
-            contentArea.innerHTML = '';
-            sidebarContainer.innerHTML = '';
-
-            if (novel.chapters && novel.chapters.length > 0) {
-                novel.chapters.forEach((ch, index) => {
-                    const headingId = `chapter-idx-${index}`;
-
-                    const chapterHtml = `
-                        <div class="viewer-chapter-wrapper">
-                            <div class="viewer-chapter-heading" id="${headingId}">${ch.title}</div>
-                            <div class="viewer-chapter-content">${ch.content}</div>
-                        </div>
-                    `;
-                    contentArea.insertAdjacentHTML('beforeend', chapterHtml);
-                    
-                    sidebarContainer.insertAdjacentHTML('beforeend', `
-                        <li class="chapter-item" onclick="scrollToChapter('${headingId}')">
-                            ${ch.title}
-                        </li>
-                    `);
-                });
-            } else {
-                contentArea.innerText = novel.content || "本文が登録されていません。";
-                sidebarContainer.innerHTML = '<li class="chapter-item" style="color:#aaa; cursor:default;">章が設定されていません</li>';
-            }
+            const dateObj = new Date(novel.date);
+            document.getElementById('v-date').innerText = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+            document.getElementById('v-content').innerText = novel.content;
 
             updateViewerFavBadge();
-            window.scrollTo({ top: 0 });
-        }
-
-        function scrollToChapter(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function updateViewerFavBadge() {
             const badge = document.getElementById('v-fav-badge');
-            if (!badge) return;
             if (favoriteIds.includes(currentViewingId)) {
                 badge.innerText = "登録済み";
                 badge.className = "status-badge is-fav";
