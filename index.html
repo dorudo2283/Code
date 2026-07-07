@@ -5,50 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Base 〜 祝！WEB開設 〜</title>
     <style>
-        /* 全体設計：視覚的認知の負荷を減らすリセット */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
             background-color: #f9f9f9;
             color: #333;
         }
 
-        /* ヘッダー領域 */
+        /* ヘッダー */
         header {
-            background-color: #ff8e8e; /* 暖色系で歓迎ムードを演出 */
+            background-color: #ff8e8e;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
         }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #0d2c54;
-        }
+        .logo { font-size: 24px; font-weight: bold; color: #0d2c54; }
         .logo span { color: #2a7b4c; }
-        .search-bar {
-            display: flex;
-            gap: 5px;
-        }
-        .search-bar input {
-            padding: 5px 10px;
+        
+        /* 検索・並び替えエリア */
+        .search-area { display: flex; gap: 8px; align-items: center; }
+        .search-area input {
+            padding: 6px 12px;
             width: 250px;
             border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        .search-bar button, .sort-btn {
-            padding: 5px 15px;
+        .search-area button, .select-sort {
+            padding: 6px 12px;
             background-color: #fff;
             border: 1px solid #999;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
         }
 
-        /* お知らせバー */
+        /* お知らせ */
         .news-bar {
             background-color: #ffe4e4;
             padding: 8px;
@@ -57,107 +51,63 @@
             border-bottom: 1px solid #ffcdcd;
         }
 
-        /* カルーセル（スライダー）領域 */
+        /* カルーセル（静的配置） */
         .carousel-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 30px auto;
-            max-width: 1000px;
-            gap: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 25px auto; max-width: 1000px; gap: 20px;
         }
-        .arrow {
-            font-size: 30px;
-            cursor: pointer;
-            user-select: none;
-            padding: 10px;
-        }
-        .side-box {
-            width: 80px;
-            height: 150px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            opacity: 0.5;
-        }
+        .arrow { font-size: 30px; cursor: pointer; user-select: none; padding: 10px; }
+        .side-box { width: 80px; height: 120px; border: 1px solid #ccc; background-color: #fff; opacity: 0.4; }
         .main-banner {
-            flex: 1;
-            border: 2px solid #333;
-            background-color: #fff;
-            text-align: center;
-            padding: 30px 20px;
+            flex: 1; border: 2px solid #333; background-color: #fff; text-align: center; padding: 25px 20px;
         }
-        .banner-title {
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
-        .banner-sub {
-            background-color: #f7d6c8;
-            padding: 10px;
-            font-style: italic;
-            font-weight: bold;
-            color: #b84116;
-        }
+        .banner-title { font-size: 26px; margin-bottom: 10px; }
+        .banner-sub { background-color: #f7d6c8; padding: 8px; font-weight: bold; color: #b84116; }
 
-        /* メインコンテンツ（2カラムレイアウト） */
+        /* メイン 2カラム構造 */
         .content-wrapper {
-            display: flex;
-            max-width: 1200px;
-            margin: 0 auto;
-            border: 1px solid #aaa;
-            background-color: #fff;
+            display: flex; max-width: 1200px; margin: 0 auto 30px auto;
+            border: 1px solid #aaa; background-color: #fff;
         }
-        .column {
-            flex: 1;
-            min-height: 400px;
-        }
-        .column:first-child {
-            border-right: 1px solid #aaa;
-        }
+        .column { flex: 1; min-height: 400px; }
+        .column:first-child { border-right: 1px solid #aaa; }
         .column-title {
-            background-color: #ccc;
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 0.3em;
+            background-color: #ccc; padding: 12px; text-align: center;
+            font-size: 18px; font-weight: bold; letter-spacing: 0.3em;
         }
-        .list-container {
-            padding: 20px;
-        }
+        .list-container { padding: 20px; }
+        .scrollable-list { max-height: 400px; overflow-y: auto; }
 
-        /* 小説アイテムのスタイル */
+        /* 小説カード（共通スタイル） */
         .novel-item {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px dashed #eee;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #eee;
+            position: relative;
         }
+        .novel-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
         .novel-title {
-            color: #0066cc;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
+            color: #0066cc; text-decoration: none; font-weight: bold; font-size: 18px; cursor: pointer;
         }
-        .novel-title:hover {
-            text-decoration: underline;
+        .novel-title:hover { text-decoration: underline; }
+        .novel-desc { font-size: 14px; color: #555; margin-top: 6px; line-height: 1.4; }
+        .rank-badge { color: #ffaa00; font-weight: bold; margin-right: 5px; }
+        
+        /* 登録（お気に入り）ボタン */
+        .fav-btn {
+            margin-top: 8px; padding: 4px 8px; font-size: 12px;
+            background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;
         }
-        .novel-desc {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-            line-height: 1.4;
-        }
+        .fav-btn.active { background-color: #ffcc00; border-color: #e6b800; color: #000; }
 
-        /* ランキングアイコンの簡易再現 */
-        .rank-badge {
-            color: #ffaa00;
-            font-weight: bold;
-            margin-right: 5px;
+        /* 本文閲覧エリア（シームレス表示用） */
+        .viewer-section {
+            max-width: 1200px; margin: 0 auto 50px auto; padding: 30px;
+            background-color: #fff; border: 1px solid #aaa; display: none;
         }
-
-        /* スクロール対応設定（登録した小説用） */
-        .scrollable-list {
-            max-height: 350px;
-            overflow-y: auto;
+        .viewer-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; border-left: 5px solid #ff8e8e; padding-left: 10px; }
+        .viewer-author { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .viewer-content {
+            font-size: 16px; line-height: 2.2; letter-spacing: 0.05em;
+            white-space: pre-wrap; word-wrap: break-word; border-top: 1px solid #eee; padding-top: 20px;
         }
     </style>
 </head>
@@ -165,10 +115,14 @@
 
     <header>
         <div class="logo">S<span>tory</span> B<span>ase</span> <span style="font-size: 14px; color:#333; font-weight:normal;">〜 祝！WEB開設 〜</span></div>
-        <div class="search-bar">
-            <input type="text" placeholder="作品名・作者で検索">
-            <button>検索</button>
-            <button class="sort-btn">並び替え▼</button>
+        <div class="search-area">
+            <input type="text" id="search-input" placeholder="作品名・作者名で検索">
+            <button id="search-btn">検索</button>
+            <select id="sort-select" class="select-sort">
+                <option value="none">並び替え：なし</option>
+                <option value="new">新着順</option>
+                <option value="old">古い順</option>
+            </select>
         </div>
     </header>
 
@@ -189,31 +143,179 @@
 
     <div class="content-wrapper">
         <div class="column">
-            <div class="column-title">新 着 順</div>
+            <div class="column-title" id="left-column-title">新 着 順</div>
             <div class="list-container" id="recent-list">
-                <div class="novel-item">
-                    <span class="rank-badge">👑 1</span>
-                    <a href="#" class="novel-title">絶望の翳し</a>
-                    <p class="novel-desc">ある日、いつもの通りを歩いていたら急に人がぶつかってきて人生が入れ替わり！？</p>
                 </div>
-            </div>
         </div>
 
         <div class="column">
             <div class="column-title">登 録 し た 小 説</div>
             <div class="list-container scrollable-list" id="registered-list">
-                <div class="novel-item">
-                    <span class="rank-badge">1</span> <a href="#" class="novel-title">魔法の魔女</a>
                 </div>
-                <div class="novel-item">
-                    <span class="rank-badge">2</span> <a href="#" class="novel-title">小説２</a>
-                </div>
-                <div class="novel-item">
-                    <span class="rank-badge">3</span> <a href="#" class="novel-title">小説３</a>
-                </div>
-            </div>
         </div>
     </div>
 
+    <div class="viewer-section" id="viewer-section">
+        <div class="viewer-title" id="v-title">作品タイトル</div>
+        <div class="viewer-author" id="v-author">作者：ーー | ジャンル：ーー</div>
+        <div class="viewer-content" id="v-content">本文がここに流し込まれます。</div>
+    </div>
+
+    <script src="Shosetsu.js"></script>
+    <script>
+        // お気に入りデータを保持する配列（ブラウザのメモリ上に保存）
+        let favoriteIds = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // 初期表示：全データを反映
+            renderMainList(novelData);
+            renderFavoriteList();
+
+            // 検索ボタンクリックイベント
+            document.getElementById('search-btn').addEventListener('click', executeSearchAndSort);
+            // エンターキーでの検索対応
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') executeSearchAndSort();
+            });
+            // 並び替えセレクトボックス変更イベント
+            document.getElementById('sort-select').addEventListener('change', executeSearchAndSort);
+        });
+
+        // 検索と並び替えを同時に処理するコアロジック
+        function executeSearchAndSort() {
+            const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const sortVal = document.getElementById('sort-select').value;
+            
+            let filteredList = [];
+
+            if (keyword === "") {
+                // 検索ワードがない場合は全件対象
+                filteredList = [...novelData];
+                document.getElementById('left-column-title').innerText = "作 品 一 覧";
+            } else {
+                document.getElementById('left-column-title').innerText = "検 索 結 果";
+                
+                // 認知科学：適合度（スコアリング）による並び替え
+                // 完全一致は高いスコア、部分一致は低いスコアを与えてソートする
+                novelData.forEach(novel => {
+                    const titleLower = novel.title.toLowerCase();
+                    const authorLower = novel.author.toLowerCase();
+                    let score = 0;
+
+                    if (titleLower === keyword || authorLower === keyword) {
+                        score = 100; // 完全一致（最上位）
+                    } else if (titleLower.includes(keyword) || authorLower.includes(keyword)) {
+                        score = 10;  // 部分一致
+                    }
+
+                    if (score > 0) {
+                        filteredList.push({ ...novel, _score: score });
+                    }
+                });
+
+                // まず適合度スコアで降順（高い順）に並び替える
+                filteredList.sort((a, b) => b._score - a._score);
+            }
+
+            // 次にユーザーが指定した「並び替え」条件を適用（検索スコアが同点、または検索なしの場合に効く）
+            if (sortVal === "new") {
+                filteredList.sort((a, b) => {
+                    if(a._score && b._score && a._score !== b._score) return b._score - a._score; // 検索上位は維持
+                    return new Date(b.date) - new Date(a.date);
+                });
+            } else if (sortVal === "old") {
+                filteredList.sort((a, b) => {
+                    if(a._score && b._score && a._score !== b._score) return b._score - a._score;
+                    return new Date(a.date) - new Date(b.date);
+                });
+            }
+
+            renderMainList(filteredList);
+        }
+
+        // メインリスト（左カラム）の描画関数
+        function renderMainList(dataList) {
+            const container = document.getElementById('recent-list');
+            container.innerHTML = '';
+
+            if (dataList.length === 0) {
+                container.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">一致する作品が見つかりませんでした。</p>';
+                return;
+            }
+
+            dataList.forEach((novel, index) => {
+                const isFav = favoriteIds.includes(novel.id);
+                const btnText = isFav ? "★ 登録済み" : "☆ 登録する";
+                const btnClass = isFav ? "fav-btn active" : "fav-btn";
+
+                const html = `
+                    <div class="novel-item">
+                        <div class="novel-meta">ジャンル: ${novel.genre} | 作者: ${novel.author} | 投稿日: ${novel.date}</div>
+                        <span class="rank-badge">${index + 1}</span>
+                        <span class="novel-title" onclick="openViewer(${novel.id})">${novel.title}</span>
+                        <p class="novel-desc">${novel.description}</p>
+                        <button class="${btnClass}" onclick="toggleFavorite(${novel.id})">${btnText}</button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // 右カラム（登録した小説）の描画関数
+        function renderFavoriteList() {
+            const container = document.getElementById('registered-list');
+            container.innerHTML = '';
+
+            // お気に入りに登録されているオブジェクトを抽出
+            const favNovels = novelData.filter(n => favoriteIds.includes(n.id));
+
+            if (favNovels.length === 0) {
+                container.innerHTML = '<p style="color:#aaa; text-align:center; padding:20px;">登録された小説はここに表示されます。</p>';
+                return;
+            }
+
+            favNovels.forEach((novel, index) => {
+                const html = `
+                    <div class="novel-item">
+                        <span class="rank-badge">${index + 1}</span>
+                        <span class="novel-title" onclick="openViewer(${novel.id})">${novel.title}</a>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // 登録ボタンのトグル（オン・オフ）処理
+        function toggleFavorite(id) {
+            const index = favoriteIds.indexOf(id);
+            if (index === -1) {
+                favoriteIds.push(id); // 未登録なら追加（行動経済学：即時保有効果）
+            } else {
+                favoriteIds.splice(index, 1); // 登録済みなら削除
+            }
+            
+            // 画面のリスト群を再描画して即座に同期（即時フィードバック）
+            executeSearchAndSort();
+            renderFavoriteList();
+        }
+
+        // 同一ページ内での本文閲覧＆自動スクロール処理
+        function openViewer(id) {
+            const novel = novelData.find(n => n.id === id);
+            if (!novel) return;
+
+            // 閲覧エリアにデータを注入
+            document.getElementById('v-title').innerText = novel.title;
+            document.getElementById('v-author').innerText = `作者：${novel.author} | ジャンル：${novel.genre} | 投稿日：${novel.date}`;
+            document.getElementById('v-content').innerText = novel.content;
+
+            // 非表示だった閲覧セクションを表示
+            const viewer = document.getElementById('viewer-section');
+            viewer.style.display = 'block';
+
+            // 認知科学：スムーズな視線移動のための自動スクロール
+            viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
 </body>
 </html>
